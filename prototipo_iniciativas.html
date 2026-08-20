@@ -656,6 +656,42 @@
   .flag-btn:hover{background:var(--purple-700);}
   .metrics-table td.badge-x{text-align:center;}
 
+  .report-layout{
+    display:flex;
+    align-items:stretch;
+    gap:0;
+  }
+  .report-nav{
+    display:flex;
+    flex-direction:column;
+    width:310px;
+    flex-shrink:0;
+    border-right:4px solid var(--purple-600);
+  }
+  .report-nav-item{
+    background:#93899f;
+    color:#fff;
+    padding:20px 22px;
+    text-align:right;
+    font-weight:700;
+    font-size:12.5px;
+    letter-spacing:.03em;
+    cursor:pointer;
+    border-bottom:1px solid rgba(255,255,255,.15);
+  }
+  .report-nav-item:hover{background:#7f7690;}
+  .report-nav-item.active{background:var(--purple-600);}
+  .report-content{
+    flex:1;
+    padding:0 0 0 28px;
+    min-width:0;
+  }
+  .report-content .field-label{font-size:14px;margin-bottom:12px;}
+  .report-content textarea{min-height:420px;}
+  .report-band-group{margin-bottom:22px;}
+  .report-band-group:last-child{margin-bottom:0;}
+  .report-band-group textarea{min-height:110px;}
+
   /* footer save bar */
   .save-bar{
     position:sticky;
@@ -801,16 +837,24 @@ const SECTIONS = {
     { id:'businesscase', label:'Business Case detalhado' },
   ],
   piloto: [
-    { id:'execucao', label:'Execução do piloto' },
+    { id:'resultados', label:'Resultados alcançados' },
   ],
   escala: [
-    { id:'conclusao', label:'Conclusão da escala' },
+    { id:'resultados', label:'Resultados alcançados' },
   ],
   resultados: [
-    { id:'acompanhamento', label:'Preparação para resultados' },
-    { id:'financeiro', label:'Impacto financeiro' },
+    { id:'finais', label:'Resultados finais da iniciativa' },
+    { id:'relatorio', label:'Relatório final' },
   ],
 };
+
+const REPORT_TABS = [
+  { id:'percepcao_resultados', label:'PERCEPÇÃO SOBRE RESULTADOS' },
+  { id:'percepcao_mudancas', label:'PERCEPÇÃO SOBRE MUDANÇAS' },
+  { id:'sustentabilidade', label:'SUSTENTABILIDADE DOS RESULTADOS' },
+  { id:'licoes', label:'LIÇÕES APRENDIDAS' },
+  { id:'continuidade', label:'CONTINUIDADE DA INICIATIVA' },
+];
 
 const FIXED_NAV = [
   { label:'Atualizar status', icon:'refresh' },
@@ -830,7 +874,7 @@ const ICONS = {
   gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
 };
 
-let state = { stage:'plano', section:'planejamento', fixedView:null };
+let state = { stage:'plano', section:'planejamento', fixedView:null, reportTab:'percepcao_resultados' };
 
 /* ============ RENDER: TABS ============ */
 function renderTabs(){
@@ -905,12 +949,18 @@ function selectSection(stageId, sectionId){
   state.stage = stageId;
   state.section = sectionId;
   state.fixedView = null;
+  state.reportTab = 'percepcao_resultados';
   renderAll();
 }
 
 function selectFixedView(view){
   state.fixedView = view;
   renderAll();
+}
+
+function selectReportTab(tabId){
+  state.reportTab = tabId;
+  renderContent();
 }
 
 /* ============ RENDER: CONTENT ============ */
@@ -1086,18 +1136,36 @@ const CONTENT = {
   `,
 
   plano_planejamento: () => `
-    <div class="context-header"><div class="breadcrumb">PLANO / PLANEJAMENTO DA INICIATIVA</div></div>
     <div class="grid2">
       <div class="card">
-        <div class="field-label">Descreva as atividades de execução do plano ${help()}</div>
-        ${rte('Descreva as atividades de execução do plano...','')}
+        <div class="section-band">PILOTO</div>
+        <div class="opt-row"><input type="checkbox"> A iniciativa não requer piloto.</div>
+        <div class="field-block" style="margin-top:10px;">
+          <div class="field-label">Data de início prevista para a etapa de piloto</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Data de término prevista para a etapa de piloto</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Detalhamento de quais hipóteses devem ser validadas a partir do piloto ${help()}</div>
+          <textarea style="min-height:280px;"></textarea>
+        </div>
       </div>
       <div class="card">
-        <div class="field-label">Benefícios esperados nesta etapa ${help()}</div>
-        ${rte('Descreva os benefícios esperados nesta etapa...','')}
-        <div class="field-block" style="margin-top:14px;">
-          <div class="field-label">Metodologia de mensuração ${help()}</div>
-          <textarea placeholder="Descreva como o resultado será mensurado nesta etapa." style="min-height:70px;"></textarea>
+        <div class="section-band">ESCALA</div>
+        <div class="field-block">
+          <div class="field-label">Data de início prevista para a etapa de escala</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Data de término prevista para a etapa de escala</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Descreva qual escopo será desenvolvido ao longo da etapa de escala ${help()}</div>
+          <textarea style="min-height:280px;"></textarea>
         </div>
       </div>
     </div>
@@ -1161,162 +1229,125 @@ const CONTENT = {
     ${saveBar()}
   `,
 
-  piloto_execucao: () => `
-    <div class="context-header"><div class="breadcrumb">PILOTO / EXECUÇÃO DO PILOTO</div></div>
-    <div class="grid2">
-      <div class="card">
-        <div class="section-band">PILOTO</div>
-        <div class="opt-row"><input type="checkbox"> A iniciativa não requer piloto.</div>
-        <div class="field-block" style="margin-top:10px;">
-          <div class="field-label">Data de início prevista para a etapa de piloto</div>
+  piloto_resultados: () => `
+    <div class="card span2">
+      <div class="section-band">CONCLUSÃO DO PILOTO</div>
+      <div style="display:flex;gap:40px;flex-wrap:wrap;margin-bottom:18px;">
+        <div class="field-block" style="flex:1;min-width:220px;">
+          <div class="field-label">Data de início da etapa de PILOTO:</div>
           <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
         </div>
-        <div class="field-block">
-          <div class="field-label">Data de término prevista para a etapa de piloto</div>
+        <div class="field-block" style="flex:1;min-width:220px;">
+          <div class="field-label">Data de término da etapa de PILOTO:</div>
           <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
-        </div>
-        <div class="field-block">
-          <div class="field-label">Detalhamento de quais hipóteses devem ser validadas a partir do piloto ${help()}</div>
-          <textarea style="min-height:120px;"></textarea>
         </div>
       </div>
-      <div class="card">
-        <div class="section-band">ESCALA</div>
+      <div class="grid2">
         <div class="field-block">
-          <div class="field-label">Data de início prevista para a etapa de escala</div>
-          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+          <div class="field-label">Descreva se as hipóteses foram validadas ou não, os principais fatores e descobertas. ${help()}</div>
+          <textarea style="min-height:150px;" placeholder="Não se aplica"></textarea>
         </div>
         <div class="field-block">
-          <div class="field-label">Data de término prevista para a etapa de escala</div>
-          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+          <div class="field-label">Descreva as lições aprendidas da etapa de PILOTO. ${help()}</div>
+          <textarea style="min-height:150px;" placeholder="Não se aplica"></textarea>
         </div>
-        <div class="field-block">
-          <div class="field-label">Descreva qual escopo será desenvolvido ao longo da etapa de escala ${help()}</div>
-          <textarea style="min-height:120px;"></textarea>
-        </div>
-      </div>
-    </div>
-    ${saveBar()}
-  `,
-
-  escala_conclusao: () => `
-    <div class="context-header">
-      <div class="stage-title">CONCLUSÃO DA ESCALA</div>
-    </div>
-    <div class="grid2">
-      <div class="card">
-        <div class="field-label">Descreva se as hipóteses foram validadas ou não, os principais fatores e descobertas. ${help()}</div>
-        <textarea style="min-height:140px;" placeholder="Não se aplica"></textarea>
-      </div>
-      <div class="card">
-        <div class="field-label">Descreva as ações de aprendizado identificadas ao longo da etapa. ${help()}</div>
-        <textarea style="min-height:140px;" placeholder="Não se aplica"></textarea>
       </div>
     </div>
     <div class="card span2">
       <div class="section-band">AJUSTES PARA INICIAR A ESCALA</div>
-      <div class="opt-row"><input type="radio" name="ajuste" checked> Sem alterações no Business Case</div>
-      <div class="opt-row"><input type="radio" name="ajuste"> Alteração no Business Case sem suplementação orçamentária</div>
-      <div class="opt-row"><input type="radio" name="ajuste"> Alteração no Business Case com suplementação orçamentária</div>
-      <div class="kv-callout" style="margin-top:14px;" onclick="showToast('Ajuste de KPIs (protótipo)')"><span class="ic">📈</span> Clique para atualizar/ajustar os KPIs que a iniciativa deverá acompanhar na etapa de ESCALA.</div>
-      <div class="kv-callout" onclick="showToast('Ajuste de milestones (protótipo)')"><span class="ic">🏁</span> Clique para atualizar/ajustar os milestones que a iniciativa deverá executar na etapa de ESCALA.</div>
-    </div>
-    ${saveBar()}
-  `,
-
-  resultados_acompanhamento: () => `
-    <div class="context-header">
-      <div class="stage-title">PREPARAÇÃO PARA ACOMPANHAMENTO DE RESULTADOS (PÓS-ESCALA)</div>
-    </div>
-    <div class="grid2">
-      <div class="card">
-        <div class="field-label">Qual planejamento foi elaborado para acompanhamento dos resultados? ${help()}</div>
-        <textarea style="min-height:160px;" placeholder="Descreva o planejamento elaborado para acompanhamento dos resultados..."></textarea>
-      </div>
-      <div class="card">
-        <div class="field-label">A iniciativa necessita de acompanhamento do time responsável? Se sim, quais principais aspectos precisam de atenção? ${help()}</div>
-        <textarea style="min-height:100px;" placeholder="Descreva se há necessidade de acompanhamento e quais aspectos precisam de atenção..."></textarea>
-        <p style="font-size:12.5px;color:var(--text-light);line-height:1.6;margin-top:14px;">
-          O acompanhamento pós-escala tem como objetivo garantir a perenidade dos resultados alcançados,
-          assegurando que os ganhos obtidos durante a fase de escala sejam sustentados ao longo do tempo.
-        </p>
+      <div class="grid2">
+        <div>
+          <div class="opt-row"><input type="radio" name="ajustepiloto" checked> Sem alterações no Business Case</div>
+          <div class="opt-row"><input type="radio" name="ajustepiloto"> Alteração no Business Case sem suplementação orçamentária</div>
+          <div class="opt-row"><input type="radio" name="ajustepiloto"> Alteração no Business Case com suplementação orçamentária</div>
+          <div class="field-block" style="margin-top:14px;">
+            <div class="field-label">Atualize, se necessário, qual escopo será desenvolvido ao longo da etapa de ESCALA.</div>
+            <textarea style="min-height:160px;" placeholder="Não se aplica"></textarea>
+          </div>
+        </div>
+        <div>
+          <div class="kv-callout" onclick="showToast('Ajuste de KPIs (protótipo)')"><span class="ic">📈</span> Clique para atualizar/ajustar os KPIs que a iniciativa deverá acompanhar na etapa de ESCALA.</div>
+          <div class="kv-callout" onclick="showToast('Ajuste de milestones (protótipo)')"><span class="ic">🏁</span> Clique para atualizar/ajustar os milestones que a iniciativa deverá executar na etapa de ESCALA.</div>
+        </div>
       </div>
     </div>
     ${saveBar()}
   `,
 
-  resultados_financeiro: () => `
-    <div class="context-header"><div class="breadcrumb">RESULTADOS / IMPACTO FINANCEIRO</div></div>
+  escala_resultados: () => `
     <div class="grid2">
-      <div>
-        <div class="card">
-          <div class="field-label">Já está previsto no orçamento?</div>
-          <div class="opt-row inline"><input type="radio" name="orcprev" checked> Sim</div>
-          <div class="opt-row inline"><input type="radio" name="orcprev"> Não</div>
+      <div class="card">
+        <div class="section-band">CONCLUSÃO DA ESCALA</div>
+        <div style="display:flex;gap:40px;flex-wrap:wrap;margin-bottom:18px;">
+          <div class="field-block" style="flex:1;min-width:180px;">
+            <div class="field-label">Data de início da etapa de ESCALA:</div>
+            <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+          </div>
+          <div class="field-block" style="flex:1;min-width:180px;">
+            <div class="field-label">Data de término da etapa de ESCALA:</div>
+            <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+          </div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Descreva as lições aprendidas da etapa de ESCALA ${help()}</div>
+          <textarea style="min-height:300px;" placeholder="Não se aplica"></textarea>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-band">PREPARAÇÃO PARA ACOMPANHAMENTO DE RESULTADOS (PÓS-ESCALA)</div>
+        <div class="field-block">
+          <div class="field-label">Quais os próximos passos da iniciativa para garantir a perpetuidade do resultado?</div>
+          <textarea style="min-height:150px;" placeholder="Não se aplica"></textarea>
+        </div>
+        <div class="field-block">
+          <div class="field-label">A iniciativa necessita de acompanhamento do TO pós-ESCALA? Se sim, quais principais aspectos precisam de atenção?</div>
+          <textarea style="min-height:100px;" placeholder="Não se aplica"></textarea>
+        </div>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
 
-          <div class="field-label" style="margin-top:14px;">Já foi feito o business case?</div>
-          <div class="opt-row inline"><input type="radio" name="bcfeito" checked> Sim</div>
-          <div class="opt-row inline"><input type="radio" name="bcfeito"> Não</div>
+  resultados_finais: () => `
+    <div class="card span2">
+      <div class="section-band">CONCLUSÃO DA INICIATIVA</div>
+      <div style="display:flex;gap:40px;flex-wrap:wrap;margin-bottom:18px;">
+        <div class="field-block" style="flex:1;min-width:200px;">
+          <div class="field-label">Data de início da iniciativa:</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
         </div>
-        <div class="card">
-          <div class="field-label">Áreas corporativas envolvidas</div>
-          <div class="opt-grid">
-            <div class="opt-row"><input type="checkbox"> Jurídico</div>
-            <div class="opt-row"><input type="checkbox" checked> Suprimentos</div>
-            <div class="opt-row"><input type="checkbox"> Cultura e Pessoas</div>
-            <div class="opt-row"><input type="checkbox"> Segurança da Informação</div>
-            <div class="opt-row"><input type="checkbox" checked> Financeiro</div>
-            <div class="opt-row"><input type="checkbox"> Infraestrutura Tecnológica</div>
-            <div class="opt-row"><input type="checkbox"> Privacidade de Dados</div>
-            <div class="opt-row"><input type="checkbox"> Arquitetura Tecnológica</div>
-            <div class="opt-row"><input type="checkbox"> Open Innovation</div>
-            <div class="opt-row"><input type="checkbox"> Desenvolvimento</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="field-label">Validação do business case</div>
-          <div class="opt-row inline"><input type="radio" name="bcval" checked> Aprovado</div>
-          <div class="opt-row inline"><input type="radio" name="bcval"> Não aprovado</div>
-          <div class="field-block" style="margin-top:12px;">
-            <label style="font-size:12.5px;color:var(--text-mid);">Prazo (FY)</label>
-            <input type="text" placeholder="Ex.: FY2026">
-          </div>
-          <div class="field-block">
-            <label style="font-size:12.5px;color:var(--text-mid);">ROI</label>
-            <input type="text" placeholder="Ex.: 18%">
-          </div>
+        <div class="field-block" style="flex:1;min-width:200px;">
+          <div class="field-label">Data de término da iniciativa:</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
         </div>
       </div>
-      <div>
-        <div class="card">
-          <div class="field-label">Riscos e mitigações</div>
-          <textarea style="min-height:70px;"></textarea>
-        </div>
-        <div class="card">
-          <div class="field-label">Premissas utilizadas</div>
-          <textarea style="min-height:70px;"></textarea>
-        </div>
-        <div class="card">
-          <div class="field-label">Satisfação geral com os resultados</div>
-          <div class="thermo-row">
-            <div class="thermo-face" onclick="selectThermo(this)">😠<span class="thermo-label">Muito mal</span></div>
-            <div class="thermo-face" onclick="selectThermo(this)">🙁<span class="thermo-label">Mal</span></div>
-            <div class="thermo-face" onclick="selectThermo(this)">😐<span class="thermo-label">Neutro</span></div>
-            <div class="thermo-face sel" onclick="selectThermo(this)">🙂<span class="thermo-label">Bem</span></div>
-            <div class="thermo-face" onclick="selectThermo(this)">😄<span class="thermo-label">Muito bem</span></div>
-          </div>
-        </div>
+      <div class="field-block">
+        <div class="field-label">Avaliação geral do resultado da iniciativa</div>
+        <div class="opt-row"><input type="radio" name="avalgeral"> Sem captura de resultados</div>
+        <div class="opt-row"><input type="radio" name="avalgeral"> Resultados abaixo do esperado</div>
+        <div class="opt-row"><input type="radio" name="avalgeral"> Resultados parcialmente atingidos</div>
+        <div class="opt-row"><input type="radio" name="avalgeral"> Resultados atingidos em sua totalidade</div>
+        <div class="opt-row"><input type="radio" name="avalgeral"> Resultados superados</div>
       </div>
-      <div class="card span2">
-        <div class="field-label">Indicadores de resultado (KPIs)</div>
-        <table class="table-simple kpi-table">
-          <thead><tr><th>Iniciativa (KPI)</th><th>Meta 2025</th><th>Real YTD</th></tr></thead>
-          <tbody>
-            <tr><td>Taxa de conclusão de trilhas</td><td>75%</td><td>68%</td></tr>
-            <tr><td>Nota média de satisfação</td><td>4,5</td><td>4,3</td></tr>
-            <tr><td>Colaboradores impactados</td><td>1.200</td><td>940</td></tr>
-          </tbody>
-        </table>
+      <div class="field-block">
+        <div class="field-label">Benefícios alcançados ${help()}</div>
+        <textarea style="min-height:150px;"></textarea>
+      </div>
+      <div class="field-block">
+        <div class="opt-row"><input type="checkbox" id="iniciativaFinalizada" onchange="showToast(this.checked ? 'Iniciativa marcada como finalizada (protótipo)' : 'Marcação removida (protótipo)')"> Iniciativa finalizada!</div>
+        <p style="font-size:12px;color:var(--text-light);font-style:italic;margin:6px 0 0 23px;">Data e responsável pelo encerramento são preenchidos automaticamente ao marcar esta opção.</p>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  resultados_relatorio: () => `
+    <div class="report-layout">
+      <div class="report-nav">
+        ${REPORT_TABS.map(t => `<div class="report-nav-item ${state.reportTab===t.id?'active':''}" onclick="selectReportTab('${t.id}')">${t.label}</div>`).join('')}
+      </div>
+      <div class="report-content">
+        ${reportSubpage(state.reportTab)}
       </div>
     </div>
     ${saveBar()}
@@ -1392,6 +1423,48 @@ const CONTENT = {
     ${saveBar()}
   `,
 };
+
+function reportSubpage(tab){
+  switch(tab){
+    case 'percepcao_resultados':
+      return `
+        <div class="field-label">Os stakeholders da iniciativa enxergam valor nos resultados gerados? Quais feedbacks recebidos?</div>
+        <textarea></textarea>
+      `;
+    case 'percepcao_mudancas':
+      return `
+        <div class="field-label">Como os stakeholders da iniciativa enxergam a execução das mudanças?</div>
+        <textarea></textarea>
+      `;
+    case 'sustentabilidade':
+      return `
+        <div class="field-label">Os resultados são sustentáveis a longo prazo? Quais fatores de sucesso para garantir a sustentabilidade?</div>
+        <textarea></textarea>
+      `;
+    case 'licoes':
+      return `
+        <div class="report-band-group">
+          <div class="section-band">LIÇÕES APRENDIDAS DURANTE O ESTÁGIO DE PILOTO</div>
+          <textarea placeholder="Não se aplica"></textarea>
+        </div>
+        <div class="report-band-group">
+          <div class="section-band">LIÇÕES APRENDIDAS DURANTE O ESTÁGIO DE ESCALA</div>
+          <textarea placeholder="Não se aplica"></textarea>
+        </div>
+        <div class="report-band-group">
+          <div class="section-band">LIÇÕES APRENDIDAS APÓS CONCLUÍDO O ESTÁGIO DE ESCALA</div>
+          <textarea></textarea>
+        </div>
+      `;
+    case 'continuidade':
+      return `
+        <div class="field-label">Descreva os principais fatores para o sucesso e continuidade dos benefícios da iniciativa. ${help()}</div>
+        <textarea></textarea>
+      `;
+    default:
+      return '';
+  }
+}
 
 function selectThermo(el){
   el.parentElement.querySelectorAll('.thermo-face').forEach(f=>f.classList.remove('sel'));
