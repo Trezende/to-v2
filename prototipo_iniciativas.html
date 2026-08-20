@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Iniciativas Estratégicas — Protótipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple-900:#3c1361;
+    --purple-800:#4c1d95;
+    --purple-700:#5b21b6;
+    --purple-600:#6d28d9;
+    --purple-500:#7c3aed;
+    --purple-100:#ede9fe;
+    --purple-50:#f5f3ff;
+    --sidebar-bg:#3d3548;
+    --sidebar-bg-2:#453c52;
+    --sidebar-text:#c9c2d6;
+    --bg:#f2f3f7;
+    --card-bg:#ffffff;
+    --border:#e3e1ea;
+    --text-dark:#26232e;
+    --text-mid:#5b5768;
+    --text-light:#8b8798;
+    --green-bg:#dcf3de;
+    --green-text:#276e35;
+    --shadow: 0 1px 3px rgba(30,20,50,0.08), 0 1px 2px rgba(30,20,50,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    font-size:14px;
+  }
+  .app{
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+  }
+
+  /* ===== Header bar ===== */
+  .topbar{
+    background:linear-gradient(90deg,var(--purple-800),var(--purple-700));
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 20px;
+    flex-shrink:0;
+  }
+  .topbar-left{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:600;
+    font-size:15px;
+  }
+  .topbar-left .folder-icon{
+    width:20px;height:20px;
+    opacity:.9;
+  }
+  .back-btn{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.3);
+    color:#fff;
+    padding:6px 12px;
+    border-radius:6px;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .back-btn:hover{background:rgba(255,255,255,.22);}
+  .topbar-right{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  .icon-btn{
+    width:30px;height:30px;
+    border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    background:rgba(255,255,255,.08);
+    border:none;
+    color:#fff;
+  }
+  .icon-btn:hover{background:rgba(255,255,255,.2);}
+
+  /* ===== Tab strip ===== */
+  .tabstrip-row{
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 20px;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+    gap:16px;
+  }
+  .status-chip{
+    background:var(--green-bg);
+    color:var(--green-text);
+    border-radius:6px;
+    padding:6px 16px;
+    text-align:center;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.02em;
+    min-width:150px;
+  }
+  .status-chip .sub{
+    display:block;
+    font-weight:500;
+    font-size:12px;
+    margin-top:2px;
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    flex:1;
+    justify-content:center;
+    flex-wrap:wrap;
+  }
+  .tab-btn{
+    border:none;
+    background:#eceaf2;
+    color:#8b859a;
+    padding:10px 22px;
+    border-radius:6px;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.03em;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tab-btn:hover{background:#e1ddec;}
+  .tab-btn.active{
+    background:var(--purple-600);
+    color:#fff;
+  }
+  .advance-btn{
+    background:var(--purple-600);
+    color:#fff;
+    border:none;
+    padding:10px 18px;
+    border-radius:6px;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    white-space:nowrap;
+  }
+  .advance-btn:hover{background:var(--purple-700);}
+
+  /* ===== Body layout ===== */
+  .body-row{
+    flex:1;
+    display:flex;
+    overflow:hidden;
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar{
+    width:230px;
+    background:var(--sidebar-bg);
+    color:var(--sidebar-text);
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+    overflow-y:auto;
+    padding:14px 0;
+  }
+  .side-fixed{
+    padding:0 10px;
+    margin-bottom:10px;
+  }
+  .side-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:500;
+    color:var(--sidebar-text);
+  }
+  .side-item:hover{background:rgba(255,255,255,.06);}
+  .side-item svg{flex-shrink:0;opacity:.8;}
+  .side-item.active{background:var(--purple-500);color:#fff;font-weight:600;}
+  .side-item.active svg{opacity:1;}
+  .side-divider{
+    height:1px;
+    background:rgba(255,255,255,.08);
+    margin:8px 14px;
+  }
+  .side-group{padding:0 10px;}
+  .side-group-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:9px 12px;
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:.04em;
+    color:#a89fbb;
+    cursor:pointer;
+    border-radius:6px;
+  }
+  .side-group-header:hover{background:rgba(255,255,255,.06);}
+  .side-group.active-group .side-group-header{color:#fff;}
+  .side-group-header .chev{
+    transition:transform .15s ease;
+    opacity:.7;
+  }
+  .side-group.collapsed .side-group-header .chev{transform:rotate(-90deg);}
+  .side-subitems{
+    overflow:hidden;
+    max-height:400px;
+    transition:max-height .2s ease;
+  }
+  .side-group.collapsed .side-subitems{max-height:0;}
+  .side-subitem{
+    padding:8px 12px 8px 24px;
+    font-size:13px;
+    border-radius:6px;
+    cursor:pointer;
+    color:var(--sidebar-text);
+    margin:1px 0;
+  }
+  .side-subitem:hover{background:rgba(255,255,255,.06);}
+  .side-subitem.active{
+    background:var(--purple-500);
+    color:#fff;
+    font-weight:600;
+  }
+  .sidebar-bottom{
+    margin-top:auto;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .side-action-btn{
+    background:var(--purple-600);
+    color:#fff;
+    border:none;
+    padding:10px 12px;
+    border-radius:6px;
+    font-weight:700;
+    font-size:12.5px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+  }
+  .side-action-btn:hover{background:var(--purple-700);}
+
+  /* ===== Main content ===== */
+  .main{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+  }
+  .content-scroll{
+    flex:1;
+    padding:20px 24px 90px 24px;
+  }
+  .context-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .breadcrumb{
+    font-size:13px;
+    font-weight:700;
+    color:var(--purple-600);
+    letter-spacing:.02em;
+  }
+  .stage-title{
+    font-size:14px;
+    font-weight:700;
+    color:var(--purple-700);
+    letter-spacing:.03em;
+  }
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  @media (max-width:900px){
+    .grid2{grid-template-columns:1fr;}
+  }
+  .card{
+    background:var(--card-bg);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    padding:18px 20px;
+    margin-bottom:18px;
+  }
+  .card.span2{grid-column:1/-1;}
+  .section-band{
+    background:var(--purple-100);
+    color:var(--purple-800);
+    font-weight:700;
+    font-size:12.5px;
+    letter-spacing:.03em;
+    padding:8px 12px;
+    border-radius:6px;
+    margin-bottom:14px;
+  }
+  .field-label{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-weight:600;
+    font-size:13px;
+    margin-bottom:8px;
+    color:var(--text-dark);
+  }
+  .help-q{
+    width:15px;height:15px;
+    border-radius:50%;
+    border:1.4px solid var(--purple-400,#a78bfa);
+    color:var(--purple-600);
+    font-size:10px;
+    font-weight:700;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:help;
+    flex-shrink:0;
+  }
+  input[type=text],input[type=number],select,textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:13.5px;
+    padding:9px 11px;
+    border:1px solid var(--border);
+    border-radius:6px;
+    background:#fafafc;
+    color:var(--text-dark);
+  }
+  textarea{resize:vertical;min-height:80px;}
+  input[type=text]:focus,textarea:focus,select:focus{
+    outline:none;
+    border-color:var(--purple-500);
+    background:#fff;
+  }
+  .field-block{margin-bottom:16px;}
+  .field-block:last-child{margin-bottom:0;}
+
+  /* rich text editor look */
+  .rte{
+    border:1px solid var(--border);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .rte-toolbar{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    background:#fafafc;
+    border-bottom:1px solid var(--border);
+    padding:6px 8px;
+    flex-wrap:wrap;
+  }
+  .rte-toolbar select{
+    width:auto;
+    padding:5px 8px;
+    font-size:12px;
+  }
+  .rte-btn{
+    width:26px;height:26px;
+    border:none;
+    background:transparent;
+    border-radius:4px;
+    color:var(--text-mid);
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .rte-btn:hover{background:#e9e6f2;}
+  .rte-sep{width:1px;height:18px;background:var(--border);margin:0 3px;}
+  .rte-body{
+    padding:12px 14px;
+    min-height:120px;
+    max-height:220px;
+    overflow-y:auto;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--text-mid);
+  }
+  .rte-body[contenteditable]:focus{outline:none;background:#fdfcff;}
+  .rte-body ol,.rte-body ul{margin:6px 0;padding-left:20px;}
+  .rte-body:empty:before{content:attr(data-placeholder);color:var(--text-light);}
+  textarea::placeholder{color:var(--text-light);}
+  input[type=text]::placeholder{color:var(--text-light);}
+
+  /* checklist */
+  .checklist{list-style:none;padding:0;margin:0;counter-reset:step;}
+  .checklist>li{
+    counter-increment:step;
+    margin-bottom:10px;
+    font-size:13.5px;
+  }
+  .checklist>li::before{
+    content:counter(step)". ";
+    font-weight:700;
+    color:var(--purple-700);
+  }
+  .checklist .sub{
+    list-style:disc;
+    margin:6px 0 0 20px;
+    padding:0;
+    color:var(--text-mid);
+    font-size:13px;
+  }
+  .checklist .sub li{margin-bottom:4px;}
+
+  /* radios / checkboxes */
+  .opt-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .opt-row input{margin:0;accent-color:var(--purple-600);width:15px;height:15px;flex-shrink:0;}
+  .opt-row.inline{display:inline-flex;margin-right:24px;}
+  .opt-hint{
+    display:block;
+    font-size:12px;
+    color:var(--text-light);
+    font-style:italic;
+    margin:2px 0 8px 23px;
+  }
+  .opt-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:4px 24px;
+  }
+  .pills{display:flex;gap:8px;align-items:center;}
+  .pill-add{
+    width:28px;height:28px;
+    background:var(--purple-600);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    font-size:16px;
+    cursor:pointer;
+  }
+  .pill{
+    padding:9px 18px;
+    border-radius:6px;
+    background:#f1eefa;
+    color:var(--purple-700);
+    font-weight:700;
+    font-size:14px;
+    border:1px solid transparent;
+    cursor:pointer;
+  }
+  .pill.active{border-color:var(--purple-500);background:#fff;}
+
+  .table-simple{width:100%;border-collapse:collapse;font-size:13px;}
+  .table-simple th{
+    text-align:left;
+    color:var(--purple-700);
+    font-weight:700;
+    font-size:11.5px;
+    letter-spacing:.03em;
+    padding:8px 6px;
+    border-bottom:2px solid var(--purple-100);
+  }
+  .table-simple td{
+    padding:10px 6px;
+    border-bottom:1px solid var(--border);
+  }
+  .table-simple tr:last-child td{border-bottom:none;}
+  .badge-x{
+    color:#b0abbe;
+    cursor:pointer;
+    font-weight:700;
+  }
+
+  .strategy-banner{
+    border-radius:8px;
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .strategy-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 18px;
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.02em;
+  }
+  .strategy-row.r1{background:var(--purple-800);}
+  .strategy-row.r2{background:var(--purple-600);}
+  .strategy-row.r3{background:#9a7fd6;}
+  .avatar-dot{
+    width:26px;height:26px;
+    border-radius:50%;
+    background:rgba(255,255,255,.25);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;
+    border:1px solid rgba(255,255,255,.5);
+  }
+  .select-obj-btn{
+    background:var(--purple-900);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:6px 12px;
+    font-size:11.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    font-size:13.5px;
+    font-weight:600;
+  }
+  .toggle{
+    width:38px;height:20px;
+    border-radius:12px;
+    background:#dcdae3;
+    position:relative;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:background .15s;
+  }
+  .toggle.on{background:var(--purple-600);}
+  .toggle::after{
+    content:'';
+    position:absolute;
+    top:2px;left:2px;
+    width:16px;height:16px;
+    background:#fff;
+    border-radius:50%;
+    transition:left .15s;
+    box-shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+  .toggle.on::after{left:20px;}
+
+  .date-field{position:relative;}
+  .date-field input{padding-right:36px;}
+  .cal-icon{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    width:22px;height:22px;background:var(--purple-500);border-radius:4px;
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;
+  }
+
+  .kv-callout{
+    background:var(--purple-600);
+    color:#fff;
+    border-radius:8px;
+    padding:12px 14px;
+    font-size:12.5px;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+    cursor:pointer;
+    line-height:1.4;
+  }
+  .kv-callout .ic{
+    width:28px;height:28px;
+    background:rgba(255,255,255,.2);
+    border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+
+  .thermo-row{
+    display:flex;
+    justify-content:space-between;
+    gap:6px;
+    margin-top:8px;
+  }
+  .thermo-face{
+    flex:1;
+    text-align:center;
+    padding:10px 4px;
+    border-radius:8px;
+    background:#f5f4f9;
+    cursor:pointer;
+    font-size:22px;
+    border:2px solid transparent;
+  }
+  .thermo-face.sel{border-color:var(--purple-500);background:var(--purple-50);}
+  .thermo-label{font-size:10px;color:var(--text-light);display:block;margin-top:4px;}
+
+  .kpi-table th,.kpi-table td{text-align:center;}
+  .kpi-table th:first-child,.kpi-table td:first-child{text-align:left;}
+
+  .metrics-filter-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:22px;
+  }
+  .filter-item{min-width:170px;flex:1;}
+  .filter-item .field-label{margin-bottom:8px;}
+  .filter-control{display:flex;align-items:center;gap:8px;}
+  .filter-control select{flex:1;}
+  .freq-value{
+    font-weight:700;
+    color:var(--purple-700);
+    letter-spacing:.02em;
+    padding:9px 0;
+    font-size:13.5px;
+  }
+  .metrics-table{min-width:900px;}
+  .metrics-table th{white-space:nowrap;}
+  .metrics-table td{padding:8px 6px;}
+  .metrics-table input[type=text]{
+    min-width:80px;
+    padding:8px 9px;
+    text-align:center;
+  }
+  .flag-cell{text-align:center;}
+  .flag-btn{
+    width:26px;height:26px;
+    border-radius:6px;
+    background:var(--purple-500);
+    border:none;
+    color:#fff;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .flag-btn:hover{background:var(--purple-700);}
+  .metrics-table td.badge-x{text-align:center;}
+
+  /* footer save bar */
+  .save-bar{
+    position:sticky;
+    bottom:0;
+    display:flex;
+    justify-content:flex-end;
+    padding:14px 0 4px 0;
+  }
+  .save-btn{
+    background:var(--purple-600);
+    color:#fff;
+    border:none;
+    padding:11px 26px;
+    border-radius:6px;
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+    box-shadow:0 4px 10px rgba(109,40,217,.3);
+    display:flex;align-items:center;gap:8px;
+  }
+  .save-btn:hover{background:var(--purple-700);}
+
+  /* status footer */
+  .statusfooter{
+    flex-shrink:0;
+    background:#f7f6fa;
+    border-top:1px solid var(--border);
+    padding:8px 20px;
+    display:flex;
+    gap:24px;
+    font-size:11.5px;
+    color:var(--text-light);
+    align-items:center;
+  }
+  .statusfooter .badge{
+    background:#e6e2f2;
+    color:var(--purple-700);
+    padding:2px 8px;
+    border-radius:4px;
+    font-weight:700;
+  }
+  .statusfooter .spacer{flex:1;}
+
+  .toast{
+    position:fixed;
+    bottom:24px;
+    right:24px;
+    background:var(--text-dark);
+    color:#fff;
+    padding:12px 18px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    box-shadow:0 6px 20px rgba(0,0,0,.25);
+    opacity:0;
+    transform:translateY(10px);
+    transition:all .25s ease;
+    pointer-events:none;
+    z-index:50;
+  }
+  .toast.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <svg class="folder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+      <span id="initiativeTitle">[Piloto de Capacitação] Programa Trilhas de Aprendizagem</span>
+    </div>
+    <div class="topbar-right">
+      <button class="back-btn" onclick="showToast('Voltando para a lista de iniciativas (protótipo)')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+        Voltar
+      </button>
+      <button class="icon-btn" title="Histórico" onclick="showToast('Histórico de alterações (protótipo)')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/><path d="M12 7v5l3 3"/></svg>
+      </button>
+      <button class="icon-btn" title="Comentários" onclick="showToast('Comentários (protótipo)')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      </button>
+      <button class="icon-btn" title="Fechar" onclick="showToast('Fechar iniciativa (protótipo)')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tab strip -->
+  <div class="tabstrip-row">
+    <div class="status-chip">STATUS ATUAL<span class="sub">Dentro do previsto</span></div>
+    <div class="tabs" id="tabsWrap"></div>
+    <button class="advance-btn" onclick="showToast('Etapa avançada (ação simulada)')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+      Avançar etágio
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="body-row">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar"></div>
+
+    <!-- Main -->
+    <div class="main">
+      <div class="content-scroll" id="content"></div>
+    </div>
+  </div>
+
+  <!-- Status footer -->
+  <div class="statusfooter">
+    <span>ID: 128</span>
+    <span>Última atualização em 12/08/2026 09:40 por colaborador.exemplo@empresa-ficticia.com</span>
+    <span class="spacer"></span>
+    <span>Logado como: usuario.exemplo@empresa-ficticia.com</span>
+    <span class="badge">HML</span>
+    <span>AppVersion: 1.0.0-proto</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ DATA MODEL ============ */
+const STAGES = [
+  { id:'ideia', label:'IDEIA' },
+  { id:'plano', label:'PLANO' },
+  { id:'piloto', label:'PILOTO' },
+  { id:'escala', label:'ESCALA' },
+  { id:'resultados', label:'RESULTADOS' },
+];
+
+const SECTIONS = {
+  ideia: [
+    { id:'ficha', label:'Ficha da iniciativa' },
+    { id:'alinhamento', label:'Alinhamento com a estratégia' },
+    { id:'racional', label:'Racional de construção' },
+  ],
+  plano: [
+    { id:'planejamento', label:'Planejamento da iniciativa' },
+    { id:'businesscase', label:'Business Case detalhado' },
+  ],
+  piloto: [
+    { id:'execucao', label:'Execução do piloto' },
+  ],
+  escala: [
+    { id:'conclusao', label:'Conclusão da escala' },
+  ],
+  resultados: [
+    { id:'acompanhamento', label:'Preparação para resultados' },
+    { id:'financeiro', label:'Impacto financeiro' },
+  ],
+};
+
+const FIXED_NAV = [
+  { label:'Atualizar status', icon:'refresh' },
+  { label:'Entregáveis', icon:'award' },
+  { label:'Impacto financeiro', icon:'dollar' },
+  { label:'Métricas de sucesso', icon:'chart', view:'metricas_sucesso' },
+  { label:'Change management', icon:'loop' },
+];
+
+const ICONS = {
+  refresh:'<path d="M4 4v5h5"/><path d="M20 20v-5h-5"/><path d="M5.5 9a7 7 0 0 1 12-3.5L20 8"/><path d="M18.5 15a7 7 0 0 1-12 3.5L4 16"/>',
+  award:'<circle cx="12" cy="8" r="5"/><path d="M8.2 13.5 7 22l5-3 5 3-1.2-8.5"/>',
+  dollar:'<path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/>',
+  loop:'<path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+  paperclip:'<path d="M21 11.5V7a5 5 0 0 0-10 0v10a3 3 0 0 0 6 0V8"/>',
+  gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'
+};
+
+let state = { stage:'plano', section:'planejamento', fixedView:null };
+
+/* ============ RENDER: TABS ============ */
+function renderTabs(){
+  const wrap = document.getElementById('tabsWrap');
+  wrap.innerHTML = STAGES.map(s => `
+    <button class="tab-btn ${s.id===state.stage?'active':''}" onclick="selectStage('${s.id}')">${s.label}</button>
+  `).join('');
+}
+
+function selectStage(stageId){
+  state.stage = stageId;
+  state.section = SECTIONS[stageId][0].id;
+  state.fixedView = null;
+  renderAll();
+}
+
+/* ============ RENDER: SIDEBAR ============ */
+function renderSidebar(){
+  const el = document.getElementById('sidebar');
+  let html = `<div class="side-fixed">`;
+  FIXED_NAV.forEach(item=>{
+    const isMetrics = item.view === 'metricas_sucesso';
+    const isActive = isMetrics && state.fixedView === 'metricas_sucesso';
+    const onclick = item.view ? `selectFixedView('${item.view}')` : `showToast('${item.label} (protótipo)')`;
+    html += `<div class="side-item ${isActive?'active':''}" onclick="${onclick}">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS[item.icon]}</svg>
+      ${item.label}
+    </div>`;
+  });
+  html += `</div><div class="side-divider"></div>`;
+
+  STAGES.forEach(s=>{
+    const isActiveGroup = s.id === state.stage;
+    html += `<div class="side-group ${isActiveGroup?'active-group':'collapsed'}" data-stage="${s.id}">
+      <div class="side-group-header" onclick="toggleGroup('${s.id}')">
+        <span>${s.label}</span>
+        <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="side-subitems">
+        ${SECTIONS[s.id].map(sec=>`
+          <div class="side-subitem ${(!state.fixedView && isActiveGroup && sec.id===state.section)?'active':''}" onclick="selectSection('${s.id}','${sec.id}')">${sec.label}</div>
+        `).join('')}
+      </div>
+    </div>`;
+  });
+
+  html += `<div class="sidebar-bottom">
+    <button class="side-action-btn" onclick="showToast('Evidências anexadas (protótipo)')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.paperclip}</svg>
+      Evidências
+    </button>
+    <button class="side-action-btn" onclick="showToast('Configurações (protótipo)')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${ICONS.gear}</svg>
+      Configurações
+    </button>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function toggleGroup(stageId){
+  const group = document.querySelector(`.side-group[data-stage="${stageId}"]`);
+  if(stageId === state.stage){
+    // active group toggles collapse visually but keeps state
+    group.classList.toggle('collapsed');
+    return;
+  }
+  group.classList.toggle('collapsed');
+}
+
+function selectSection(stageId, sectionId){
+  state.stage = stageId;
+  state.section = sectionId;
+  state.fixedView = null;
+  renderAll();
+}
+
+function selectFixedView(view){
+  state.fixedView = view;
+  renderAll();
+}
+
+/* ============ RENDER: CONTENT ============ */
+function help(){ return `<span class="help-q">?</span>`; }
+
+function rte(placeholder, content){
+  return `
+  <div class="rte">
+    <div class="rte-toolbar">
+      <select><option>Formatação</option><option>Título</option><option>Parágrafo</option></select>
+      <div class="rte-sep"></div>
+      <button class="rte-btn" style="font-style:italic;font-weight:900;">B</button>
+      <button class="rte-btn" style="font-style:italic;">I</button>
+      <button class="rte-btn" style="text-decoration:underline;">U</button>
+      <div class="rte-sep"></div>
+      <button class="rte-btn">🔗</button>
+      <button class="rte-btn">⌫</button>
+      <div class="rte-sep"></div>
+      <button class="rte-btn">≔</button>
+      <button class="rte-btn">☰</button>
+      <button class="rte-btn">⋯</button>
+    </div>
+    <div class="rte-body" contenteditable="true" data-placeholder="${placeholder}">${content}</div>
+  </div>`;
+}
+
+function saveBar(){
+  return `<div class="save-bar"><button class="save-btn" onclick="showToast('Alterações salvas (simulação local)')">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
+    Salvar
+  </button></div>`;
+}
+
+const CONTENT = {
+  ideia_ficha: () => `
+    <div class="context-header">
+      <div class="breadcrumb">IDEIA / FICHA DA INICIATIVA</div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="field-label">Descreva qual a necessidade desta iniciativa ${help()}</div>
+          ${rte('Descreva qual a necessidade desta iniciativa...','')}
+        </div>
+        <div class="card">
+          <div class="field-label">Descreva como a iniciativa atende/soluciona as necessidades apontadas ${help()}</div>
+          ${rte('Descreva como a iniciativa atende/soluciona as necessidades apontadas...','')}
+        </div>
+        <div class="card">
+          <div class="field-label">Como o serviço será executado ${help()}</div>
+          <div class="opt-row"><input type="radio" name="exec" checked> Execução interna pela equipe do programa</div>
+          <div class="opt-row"><input type="radio" name="exec"> Execução com apoio de fornecedor parceiro</div>
+          <div class="opt-row"><input type="radio" name="exec"> Execução híbrida (equipe interna + parceiro)</div>
+        </div>
+        <div class="card">
+          <div class="field-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Período(s) em que a Iniciativa tem atuação</div>
+          <div class="pills">
+            <button class="pill-add">+</button>
+            <div class="pill active">2025</div>
+            <div class="pill">2026</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="field-label">Descreva os benefícios esperados com essa iniciativa ${help()}</div>
+          ${rte('Descreva os benefícios esperados com essa iniciativa...','')}
+        </div>
+        <div class="card">
+          <div class="field-block">
+            <div class="field-label">Área N1 responsável pela execução da iniciativa</div>
+            <select><option>Experiência de Aprendizagem</option><option>Operações</option><option>Recursos Humanos</option></select>
+          </div>
+          <div class="field-block">
+            <div class="field-label">Responsável pela iniciativa</div>
+            <select><option>Responsável Exemplo da Silva</option><option>Colaborador(a) Fictício(a)</option></select>
+          </div>
+          <div class="field-block">
+            <div class="field-label">Co-responsável pela iniciativa</div>
+            <select><option>Co-responsável Exemplo Souza</option><option>Colaborador(a) Fictício(a) 2</option></select>
+          </div>
+          <div class="field-block">
+            <div class="field-label">Stakeholders</div>
+            <textarea placeholder="Informe nominalmente as pessoas que serão envolvidas na execução da iniciativa." style="min-height:60px;"></textarea>
+          </div>
+        </div>
+        <div class="card">
+          <div class="field-label">Como essa iniciativa será financiada?</div>
+          <div class="opt-row"><input type="checkbox"> Previsto em orçamento</div>
+          <div class="opt-row"><input type="checkbox"> Orçamento adicional (on top)</div>
+          <div class="opt-row"><input type="checkbox" checked> Não necessário</div>
+        </div>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  ideia_alinhamento: () => `
+    <div class="context-header"><div class="breadcrumb">IDEIA / ALINHAMENTO COM A ESTRATÉGIA</div></div>
+    <div class="card span2" style="padding:0;">
+      <div class="strategy-banner">
+        <div class="strategy-row r1"><span>SPONSOR</span><span class="avatar-dot">D</span><span></span><span class="avatar-dot">R</span></div>
+        <div class="strategy-row r2"><span>MUST-WIN BATTLE</span><span>Excelência na Jornada de Aprendizagem</span><span>LÍDER MUST-WIN BATTLE</span></div>
+        <div class="strategy-row r3"><span><button class="select-obj-btn">SELECIONAR OBJETIVO</button> OBJETIVO DO ANO</span><span>Fortalecer capacitação contínua</span><span>LÍDER OBJETIVO</span></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="field-label">Alinhamento com key result do ano</div>
+        <table class="table-simple">
+          <thead><tr><th>KEY RESULT</th><th>META OKR</th><th>REAL. YTD</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Engajamento em trilhas</td><td>4,50</td><td>—</td><td class="badge-x">✕</td></tr>
+            <tr><td>Conclusão de módulos</td><td>4,20</td><td>—</td><td class="badge-x">✕</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="field-label">Iniciativas relacionadas (habilitadora / sucessora) <span style="color:var(--purple-600);font-weight:900;">+</span></div>
+        <table class="table-simple">
+          <thead><tr><th>INICIATIVA</th><th>ÁREA N1</th><th></th></tr></thead>
+          <tbody><tr><td colspan="3" style="color:var(--text-light);">Nenhuma iniciativa relacionada cadastrada.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  ideia_racional: () => `
+    <div class="context-header"><div class="breadcrumb">IDEIA / RACIONAL DE CONSTRUÇÃO</div></div>
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="opt-row"><input type="checkbox"> Iniciativa gera retorno financeiro.</div>
+          <div class="field-label" style="margin-top:14px;">Horizonte de tempo da iniciativa</div>
+          <div style="font-size:12px;color:var(--text-light);margin-bottom:8px;">Visão inicial de quando a iniciativa irá capturar valor.</div>
+          <div class="opt-row inline"><input type="radio" name="hz" checked> Curto prazo (até 1 ano)</div>
+          <div class="opt-row inline"><input type="radio" name="hz"> Médio prazo (1-2 anos)</div>
+          <div class="opt-row inline"><input type="radio" name="hz"> Longo prazo (&gt;2 anos)</div>
+        </div>
+        <div class="card">
+          <div class="field-label">Estimativa inicial de ganhos (em R$)</div>
+          <div class="opt-row"><input type="radio" name="ganho" checked> Sem retorno</div>
+          <div class="opt-row"><input type="radio" name="ganho"> de 0 a 100k</div>
+          <div class="opt-row"><input type="radio" name="ganho"> de 100k a 1M</div>
+          <div class="opt-row"><input type="radio" name="ganho"> de 1M a 10M</div>
+          <div class="opt-row"><input type="radio" name="ganho"> Maior que 10M</div>
+        </div>
+        <div class="card">
+          <div class="field-label">A iniciativa gerará impacto em quais temáticas?</div>
+          <div class="opt-grid">
+            <div class="opt-row"><input type="checkbox" checked> Produto &amp; Experiência do Cliente</div>
+            <div class="opt-row"><input type="checkbox"> Eficiência &amp; Produtividade</div>
+            <div class="opt-row"><input type="checkbox"> Crescimento &amp; Mercado</div>
+            <div class="opt-row"><input type="checkbox"> Reputação &amp; Experiência do colaborador</div>
+            <div class="opt-row"><input type="checkbox"> Inovação &amp; Novos negócios</div>
+            <div class="opt-row"><input type="checkbox"> Risco, Regulatório, Compliance &amp; ESG</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="field-label">Premissas utilizadas para o impacto esperado ${help()}</div>
+          <textarea style="min-height:150px;" placeholder="Descreva o racional que ancora a sua ideia, incluindo relações de causa e efeito; evidências que ajudam a sustentar as hipóteses ou premissas utilizadas."></textarea>
+        </div>
+        <div class="card">
+          <div class="field-label">Primeira estimativa de custos e uso de recursos</div>
+          <textarea style="min-height:100px;" placeholder="Primeiras estimativas do que seria necessário desembolsar para viabilizar a iniciativa."></textarea>
+        </div>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  plano_planejamento: () => `
+    <div class="context-header"><div class="breadcrumb">PLANO / PLANEJAMENTO DA INICIATIVA</div></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="field-label">Descreva as atividades de execução do plano ${help()}</div>
+        ${rte('Descreva as atividades de execução do plano...','')}
+      </div>
+      <div class="card">
+        <div class="field-label">Benefícios esperados nesta etapa ${help()}</div>
+        ${rte('Descreva os benefícios esperados nesta etapa...','')}
+        <div class="field-block" style="margin-top:14px;">
+          <div class="field-label">Metodologia de mensuração ${help()}</div>
+          <textarea placeholder="Descreva como o resultado será mensurado nesta etapa." style="min-height:70px;"></textarea>
+        </div>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  plano_businesscase: () => `
+    <div class="context-header"><div class="breadcrumb">PLANO / BUSINESS CASE DETALHADO</div></div>
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="section-band">ORÇAMENTO</div>
+          <div class="field-label">A iniciativa já está prevista no orçamento para 2025?</div>
+          <div class="opt-row"><input type="radio" name="orc1"> Sim</div>
+          <div class="opt-row"><input type="radio" name="orc1" checked> Não</div>
+
+          <div class="field-label" style="margin-top:14px;">Será necessário solicitar suplementação via Business Case para 2025?</div>
+          <div class="opt-row"><input type="radio" name="orc2"> Sim</div>
+          <div class="opt-row"><input type="radio" name="orc2" checked> Não</div>
+
+          <div class="field-label" style="margin-top:14px;">A iniciativa pode se estender para 2026?</div>
+          <div class="opt-row"><input type="radio" name="orc3"> Não, será concluída em 2025</div>
+          <div class="opt-row"><input type="radio" name="orc3" checked> Sim, com necessidade de Business Case</div>
+          <div class="opt-row"><input type="radio" name="orc3"> Sim, sem necessidade de Business Case</div>
+        </div>
+        <div class="card">
+          <div class="section-band">VALIDAÇÃO DO BUSINESS CASE POR FINANÇAS</div>
+          <div class="toggle-row"><div class="toggle" onclick="this.classList.toggle('on')"></div> Business Case Validado</div>
+          <div class="toggle-row"><div class="toggle" onclick="this.classList.toggle('on')"></div> Business Case Aprovado</div>
+          <div class="field-label" style="margin-top:10px;">Em caso de suplementação para orçamento adicional, informar PT e PEP após a aprovação.</div>
+          <div class="field-block"><label style="font-size:12.5px;color:var(--text-mid);">Projeto (PT)</label><input type="text" placeholder="Informar após aprovação"></div>
+          <div class="field-block"><label style="font-size:12.5px;color:var(--text-mid);">PEP</label><input type="text" placeholder="Informar após aprovação"></div>
+          <div class="field-block"><label style="font-size:12.5px;color:var(--text-mid);">Centro de Custo</label><input type="text" placeholder="Informar após aprovação"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="field-label">Envolvimento com áreas corporativas</div>
+          <div class="opt-grid">
+            <div><div class="opt-row"><input type="checkbox"> Jurídico</div><span class="opt-hint">Haverá contratos ou fornecedores externos?</span></div>
+            <div><div class="opt-row"><input type="checkbox"> Segurança da Informação</div><span class="opt-hint">Necessita de medidas de segurança da informação?</span></div>
+            <div><div class="opt-row"><input type="checkbox"> Suprimentos</div><span class="opt-hint">Haverá aquisição de novos recursos ou materiais?</span></div>
+            <div><div class="opt-row"><input type="checkbox"> Infraestrutura Tecnológica</div><span class="opt-hint">Haverá mudanças na infraestrutura tecnológica?</span></div>
+            <div><div class="opt-row"><input type="checkbox"> Gente e Cultura</div><span class="opt-hint">Haverá envolvimento de Gente e Cultura?</span></div>
+            <div><div class="opt-row"><input type="checkbox"> Arquitetura Tecnológica</div><span class="opt-hint">Quais capacidades estão envolvidas nesta iniciativa?</span></div>
+            <div><div class="opt-row"><input type="checkbox"> Privacidade de Dados</div><span class="opt-hint">A iniciativa coleta ou processa dados sensíveis?</span></div>
+            <div><div class="opt-row"><input type="checkbox"> Desenvolvimento</div><span class="opt-hint">Haverá envolvimento dos times de desenvolvimento?</span></div>
+            <div><div class="opt-row"><input type="checkbox"> Open Innovation</div><span class="opt-hint">A iniciativa pode ser acelerada com inovação aberta?</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="field-label">Riscos conhecidos e possíveis mitigações ${help()}</div>
+          <textarea style="min-height:80px;"></textarea>
+        </div>
+        <div class="card">
+          <div class="field-label">Premissas utilizadas ${help()}</div>
+          <textarea style="min-height:80px;"></textarea>
+        </div>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  piloto_execucao: () => `
+    <div class="context-header"><div class="breadcrumb">PILOTO / EXECUÇÃO DO PILOTO</div></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="section-band">PILOTO</div>
+        <div class="opt-row"><input type="checkbox"> A iniciativa não requer piloto.</div>
+        <div class="field-block" style="margin-top:10px;">
+          <div class="field-label">Data de início prevista para a etapa de piloto</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Data de término prevista para a etapa de piloto</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Detalhamento de quais hipóteses devem ser validadas a partir do piloto ${help()}</div>
+          <textarea style="min-height:120px;"></textarea>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-band">ESCALA</div>
+        <div class="field-block">
+          <div class="field-label">Data de início prevista para a etapa de escala</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Data de término prevista para a etapa de escala</div>
+          <div class="date-field"><input type="text" placeholder="dd/mm/aaaa"><span class="cal-icon">📅</span></div>
+        </div>
+        <div class="field-block">
+          <div class="field-label">Descreva qual escopo será desenvolvido ao longo da etapa de escala ${help()}</div>
+          <textarea style="min-height:120px;"></textarea>
+        </div>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  escala_conclusao: () => `
+    <div class="context-header">
+      <div class="stage-title">CONCLUSÃO DA ESCALA</div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="field-label">Descreva se as hipóteses foram validadas ou não, os principais fatores e descobertas. ${help()}</div>
+        <textarea style="min-height:140px;" placeholder="Não se aplica"></textarea>
+      </div>
+      <div class="card">
+        <div class="field-label">Descreva as ações de aprendizado identificadas ao longo da etapa. ${help()}</div>
+        <textarea style="min-height:140px;" placeholder="Não se aplica"></textarea>
+      </div>
+    </div>
+    <div class="card span2">
+      <div class="section-band">AJUSTES PARA INICIAR A ESCALA</div>
+      <div class="opt-row"><input type="radio" name="ajuste" checked> Sem alterações no Business Case</div>
+      <div class="opt-row"><input type="radio" name="ajuste"> Alteração no Business Case sem suplementação orçamentária</div>
+      <div class="opt-row"><input type="radio" name="ajuste"> Alteração no Business Case com suplementação orçamentária</div>
+      <div class="kv-callout" style="margin-top:14px;" onclick="showToast('Ajuste de KPIs (protótipo)')"><span class="ic">📈</span> Clique para atualizar/ajustar os KPIs que a iniciativa deverá acompanhar na etapa de ESCALA.</div>
+      <div class="kv-callout" onclick="showToast('Ajuste de milestones (protótipo)')"><span class="ic">🏁</span> Clique para atualizar/ajustar os milestones que a iniciativa deverá executar na etapa de ESCALA.</div>
+    </div>
+    ${saveBar()}
+  `,
+
+  resultados_acompanhamento: () => `
+    <div class="context-header">
+      <div class="stage-title">PREPARAÇÃO PARA ACOMPANHAMENTO DE RESULTADOS (PÓS-ESCALA)</div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="field-label">Qual planejamento foi elaborado para acompanhamento dos resultados? ${help()}</div>
+        <textarea style="min-height:160px;" placeholder="Descreva o planejamento elaborado para acompanhamento dos resultados..."></textarea>
+      </div>
+      <div class="card">
+        <div class="field-label">A iniciativa necessita de acompanhamento do time responsável? Se sim, quais principais aspectos precisam de atenção? ${help()}</div>
+        <textarea style="min-height:100px;" placeholder="Descreva se há necessidade de acompanhamento e quais aspectos precisam de atenção..."></textarea>
+        <p style="font-size:12.5px;color:var(--text-light);line-height:1.6;margin-top:14px;">
+          O acompanhamento pós-escala tem como objetivo garantir a perenidade dos resultados alcançados,
+          assegurando que os ganhos obtidos durante a fase de escala sejam sustentados ao longo do tempo.
+        </p>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  resultados_financeiro: () => `
+    <div class="context-header"><div class="breadcrumb">RESULTADOS / IMPACTO FINANCEIRO</div></div>
+    <div class="grid2">
+      <div>
+        <div class="card">
+          <div class="field-label">Já está previsto no orçamento?</div>
+          <div class="opt-row inline"><input type="radio" name="orcprev" checked> Sim</div>
+          <div class="opt-row inline"><input type="radio" name="orcprev"> Não</div>
+
+          <div class="field-label" style="margin-top:14px;">Já foi feito o business case?</div>
+          <div class="opt-row inline"><input type="radio" name="bcfeito" checked> Sim</div>
+          <div class="opt-row inline"><input type="radio" name="bcfeito"> Não</div>
+        </div>
+        <div class="card">
+          <div class="field-label">Áreas corporativas envolvidas</div>
+          <div class="opt-grid">
+            <div class="opt-row"><input type="checkbox"> Jurídico</div>
+            <div class="opt-row"><input type="checkbox" checked> Suprimentos</div>
+            <div class="opt-row"><input type="checkbox"> Cultura e Pessoas</div>
+            <div class="opt-row"><input type="checkbox"> Segurança da Informação</div>
+            <div class="opt-row"><input type="checkbox" checked> Financeiro</div>
+            <div class="opt-row"><input type="checkbox"> Infraestrutura Tecnológica</div>
+            <div class="opt-row"><input type="checkbox"> Privacidade de Dados</div>
+            <div class="opt-row"><input type="checkbox"> Arquitetura Tecnológica</div>
+            <div class="opt-row"><input type="checkbox"> Open Innovation</div>
+            <div class="opt-row"><input type="checkbox"> Desenvolvimento</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="field-label">Validação do business case</div>
+          <div class="opt-row inline"><input type="radio" name="bcval" checked> Aprovado</div>
+          <div class="opt-row inline"><input type="radio" name="bcval"> Não aprovado</div>
+          <div class="field-block" style="margin-top:12px;">
+            <label style="font-size:12.5px;color:var(--text-mid);">Prazo (FY)</label>
+            <input type="text" placeholder="Ex.: FY2026">
+          </div>
+          <div class="field-block">
+            <label style="font-size:12.5px;color:var(--text-mid);">ROI</label>
+            <input type="text" placeholder="Ex.: 18%">
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="field-label">Riscos e mitigações</div>
+          <textarea style="min-height:70px;"></textarea>
+        </div>
+        <div class="card">
+          <div class="field-label">Premissas utilizadas</div>
+          <textarea style="min-height:70px;"></textarea>
+        </div>
+        <div class="card">
+          <div class="field-label">Satisfação geral com os resultados</div>
+          <div class="thermo-row">
+            <div class="thermo-face" onclick="selectThermo(this)">😠<span class="thermo-label">Muito mal</span></div>
+            <div class="thermo-face" onclick="selectThermo(this)">🙁<span class="thermo-label">Mal</span></div>
+            <div class="thermo-face" onclick="selectThermo(this)">😐<span class="thermo-label">Neutro</span></div>
+            <div class="thermo-face sel" onclick="selectThermo(this)">🙂<span class="thermo-label">Bem</span></div>
+            <div class="thermo-face" onclick="selectThermo(this)">😄<span class="thermo-label">Muito bem</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card span2">
+        <div class="field-label">Indicadores de resultado (KPIs)</div>
+        <table class="table-simple kpi-table">
+          <thead><tr><th>Iniciativa (KPI)</th><th>Meta 2025</th><th>Real YTD</th></tr></thead>
+          <tbody>
+            <tr><td>Taxa de conclusão de trilhas</td><td>75%</td><td>68%</td></tr>
+            <tr><td>Nota média de satisfação</td><td>4,5</td><td>4,3</td></tr>
+            <tr><td>Colaboradores impactados</td><td>1.200</td><td>940</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    ${saveBar()}
+  `,
+
+  metricas_sucesso: () => `
+    <div class="context-header">
+      <div class="breadcrumb">MÉTRICAS DE SUCESSO</div>
+    </div>
+    <div class="card span2">
+      <div class="metrics-filter-row">
+        <div class="filter-item">
+          <div class="field-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> KPI:</div>
+          <div class="filter-control">
+            <select>
+              <option>Taxa de conclusão de trilhas</option>
+              <option>Nota média de satisfação</option>
+              <option>Colaboradores impactados</option>
+            </select>
+            <button class="pill-add" onclick="showToast('Novo KPI (protótipo)')">+</button>
+          </div>
+        </div>
+        <div class="filter-item">
+          <div class="field-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Período:</div>
+          <div class="filter-control">
+            <select>
+              <option>2026</option>
+              <option>2025</option>
+            </select>
+            <button class="pill-add" onclick="showToast('Novo período (protótipo)')">+</button>
+          </div>
+        </div>
+        <div class="filter-item">
+          <div class="field-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Tipo do KPI</div>
+          <select>
+            <option>Não financeiro</option>
+            <option>Financeiro</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <div class="field-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Frequência:</div>
+          <div class="freq-value">ANUAL</div>
+        </div>
+        <div class="filter-item">
+          <div class="field-label"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> Responsável medição:</div>
+          <select>
+            <option>Responsável Exemplo da Silva</option>
+            <option>Colaborador(a) Fictício(a)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card span2" style="padding:0;overflow-x:auto;">
+      <table class="table-simple metrics-table">
+        <thead>
+          <tr><th>ANO</th><th>MÊS</th><th>BASELINE</th><th>META</th><th>REALIZADO</th><th>PILOTO</th><th>ESCALA</th><th></th></tr>
+        </thead>
+        <tbody>
+          ${['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'].map(m => `
+          <tr>
+            <td>2026</td>
+            <td>${m}</td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td><input type="text"></td>
+            <td class="flag-cell"><button class="flag-btn" title="Marcar como meta do piloto" onclick="showToast('Marcado para PILOTO (protótipo)')">🚩</button></td>
+            <td class="flag-cell"><button class="flag-btn" title="Marcar como meta da escala" onclick="showToast('Marcado para ESCALA (protótipo)')">🚩</button></td>
+            <td class="badge-x" onclick="showToast('Linha removida (protótipo)')">✕</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    ${saveBar()}
+  `,
+};
+
+function selectThermo(el){
+  el.parentElement.querySelectorAll('.thermo-face').forEach(f=>f.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function renderContent(){
+  const key = state.fixedView ? state.fixedView : `${state.stage}_${state.section}`;
+  const el = document.getElementById('content');
+  el.innerHTML = CONTENT[key] ? CONTENT[key]() : `<div class="card">Conteúdo não disponível.</div>`;
+}
+
+function renderAll(){
+  renderTabs();
+  renderSidebar();
+  renderContent();
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+renderAll();
+</script>
+
+</body>
+</html>
